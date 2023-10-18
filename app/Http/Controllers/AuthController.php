@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AuthUserResource;
 use App\Models\Otp;
 use App\Models\Customer;
 use Illuminate\Http\Request;
@@ -218,8 +219,14 @@ class AuthController extends Controller
 
     public function user()
     {
-        $user = request()->user()->load('address.area.district.division');
-
+        // $user = request()->user()->load('address.area.district.division');
+        // return
+        $user = (object)([
+            "id" => 1,
+            "name" => "shahnewaz",
+            "phone" => 11111111111,
+        ]);
+        return AuthUserResource::collection($user);
         return  $this->userResorce($user);
     }
 
