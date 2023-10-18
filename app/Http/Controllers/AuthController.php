@@ -226,7 +226,7 @@ class AuthController extends Controller
             "name" => "shahnewaz",
             "phone" => 11111111111,
         ]);
-        return AuthUserResource::collection($user);
+        // return AuthUserResource::collection($user);
         return  $this->userResorce($user);
     }
 
