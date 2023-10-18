@@ -49,7 +49,7 @@ Route::get('category-parents',[CategoryController::class, 'index'])->name('categ
 
 // Route::get('product-list', [HomeController::class, 'product_list'])->name('product-list');
 
-
+Route::put('profile', [AuthController::class, 'update_profile'])->name('update-profile');
 
 Route::middleware('auth:sanctum')->group(function (){
     // return $request->user();

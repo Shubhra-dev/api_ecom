@@ -230,6 +230,18 @@ class AuthController extends Controller
         return  $this->userResorce($user);
     }
 
+    public function update_profile(Request $request) 
+    {
+        // $request->user()->update([
+        //     "name" => $request->name,
+        //     "email" => $request->email,
+        //     "phone" => $request->phone,
+        // ]);
+        return response([
+            'message' => 'User information updated successfully'
+        ], 200);
+    }
+
     public function logout()
     {
         request()->user()->currentAccessToken()->delete();
