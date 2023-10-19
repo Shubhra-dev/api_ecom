@@ -155,7 +155,12 @@ class AuthController extends Controller
     {
         $code = rand(1111, 9999);
         $body = "Your code is {$code}";
-        $mail = Mail::to('shahnewaz886@gmail.com')->send(new WelcomeEmail($body));
+        $content= [
+            'body'=> $body, 
+            'subject' => "Forgot Password"
+        ];
+
+        $mail = Mail::to('shahnewaz886@gmail.com')->send(new WelcomeEmail($content));
         return response([
             "response" => $mail ? "Email send successfully" : "failed"
         ], 200);

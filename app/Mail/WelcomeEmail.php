@@ -16,10 +16,10 @@ class WelcomeEmail extends Mailable
      *
      * @return void
      */
-    private $code;
-    public function __construct($body)
+    private $content;
+    public function __construct($content)
     {
-        $this->body = $body;
+        $this->content = $content;
     }
 
     /**
@@ -30,7 +30,7 @@ class WelcomeEmail extends Mailable
     public function build()
     {
         // return $this->view('view.name');
-        return $this->view('emails.welcome',['body'=> $this->body])
-        ->subject('Welcome to our website');
+        return $this->view('emails.welcome',['body'=> $this->content['body']])
+        ->subject($this->content['subject'] ?? 'Welcome to our website');
     }
 }
