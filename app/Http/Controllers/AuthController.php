@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\AuthUserResource;
 use App\Models\Otp;
 use App\Models\Customer;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use App\Mail\WelcomeEmail;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -86,42 +88,35 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
+        // return
+        // !Hash::check($request->password, bcrypt($request->password));
+        // return  bcrypt($request->password);
 
-        // $fields = $request->validate([
-        //     'name'      => 'required|string',
-        //     'phone'     => 'required|string|unique:customers,phone',
-        //     'password'  => 'required|string|confirmed|min:3',
-        //     // 'code'      => 'required|size:4|regex:/^[0-9]+$/',
-        // ]);
-   
-        $user=(object)( [
-            "name" => "john",
-            "phone"=> 11111111111,
-            "password"=> "11111111111"
+
+        // return
+        $fields = $request->validate([
+            'name'      => 'required|string',
+            'phone'     => 'required|string|unique:customers,phone',
+            'password'  => 'required|string|confirmed|min:3',
+            // 'code'      => 'required|size:4|regex:/^[0-9]+$/',
         ]);
 
-        $validation = true;
-        $response_user = (object) [
-                    "id"=> 16008,
-                    "name"=> "MD Shahnewaz Ibrahim Himu",
-                    "phone"=> "01521480800"
-        ];
-        // $token = $user->createToken(Request()->ip())->plainTextToken;
-    if($validation) {
-            return response([
-                "user"=>$response_user,
-                "token"=> "24|7Gg96hjDCKg6GCh2B5AJIByxD6ySxNQpzB60G58M",
-                "tokenHash"=>"MjR8N0dnOTZoakRDS2c2R0NoMkI1QUpJQnl4RDZ5U3hOUXB6QjYwRzU4TQ==",
-                "access"=> [],
-                "user_id"=> 123,
-                "message"=> "Registration successful"
-            ], 200);
-        } else {
-            return response( [
-                "message"=> "Email already registered"
-            ]);
-        }
-        
+        $user = Customer::create([
+            'name'      => $fields['name'],
+            'phone'     => $fields['phone'],
+            'password'  => bcrypt($fields['password']),
+            'tyoe'      => 4
+        ]);
+
+        Otp::find($fields['phone'])->delete();
+
+
+        $token = $user->createToken(Request()->ip())->plainTextToken;
+        return response($user->setAndGetLoginResponse() +
+            [
+                'success'   => true,
+                'message'   => 'Registration successfull!',
+            ], 201);
 
 
 
@@ -141,50 +136,30 @@ class AuthController extends Controller
         // $reg_match =  preg_match("/^(\+88|0088|)01([123456789])([0-9]{8})$/", $fields['phone']);
         // return 
         // substr($request->phone, -11);
-        // return
-        // $user = Customer::where('phone', $fields['phone'])->first();
         
-        $user = (object)[
-            "id"=> 1,
-            "name"=> "MD Shahnewaz Ibrahim Himu",
-            "email"=> "shahnewaz886@gmail.com",
-            "password" => 123456
-            
-        ];
+        $user = Customer::where('phone', $fields['phone'])->first();
 
-        // $hashCheck = Hash::check($fields['password'], $user->password);
-        // if (!$user || !$hashCheck) {
-        //     return response([
-        //         'message' => 'Phone or Password wrong!',
-        //     ], 401);
-        // }
-        
-        return response([
-            "user"=>(object) [
-                "id"=> 16008,
-                "name"=> "MD Shahnewaz Ibrahim Himu",
-                "phone"=> "01521480800"
-            ],
-            "token"=> "24|7Gg96hjDCKg6GCh2B5AJIByxD6ySxNQpzB60G58M",
-            "tokenHash"=>"MjR8N0dnOTZoakRDS2c2R0NoMkI1QUpJQnl4RDZ5U3hOUXB6QjYwRzU4TQ==",
-            "access"=> [],
+        // Check password
+        // return Hash::check($fields['password'], $user->hash_password);
 
-            "user_id" => $user->id,
-            "message" => "Login successful",
-        ], 201);
+        if (!$user || !Hash::check($fields['password'], $user->password)) {
+            return response([
+                'message' => 'Phone or Password wrong!',
+            ], 401);
+        }
+
+        return response($user->setAndGetLoginResponse(), 201);
     }
 
     public function forgot_password(Request $request)
     {
-        // return $request;
         $code = rand(1111, 9999);
-        // Otp::updateOrCreate(
-        //         ['email' => $request->email],
-        //         ['code'  => $code,]
-        //     );
+        $body = "Your code is {$code}";
+        $mail = Mail::to('shahnewaz886@gmail.com')->send(new WelcomeEmail($body));
         return response([
-            "code" => $code,
+            "response" => $mail ? "Email send successfully" : "failed"
         ], 200);
+
     }
 
     public function phone_verification(Request $request)
@@ -232,27 +207,9 @@ class AuthController extends Controller
 
     public function user()
     {
-        // $user = request()->user()->load('address.area.district.division');
-        // return
-        $user = (object)([
-            "id" => 1,
-            "name" => "shahnewaz",
-            "phone" => 11111111111,
-        ]);
-        // return AuthUserResource::collection($user);
-        return  $this->userResorce($user);
-    }
+        $user = request()->user()->load('address.area.district.division');
 
-    public function update_profile(Request $request) 
-    {
-        // $request->user()->update([
-        //     "name" => $request->name,
-        //     "email" => $request->email,
-        //     "phone" => $request->phone,
-        // ]);
-        return response([
-            'message' => 'User information updated successfully'
-        ], 200);
+        return  $this->userResorce($user);
     }
 
     public function logout()
