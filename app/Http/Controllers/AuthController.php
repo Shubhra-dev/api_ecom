@@ -101,15 +101,15 @@ class AuthController extends Controller
         ]);
 
         $validation = true;
-
-        // $token = $user->createToken(Request()->ip())->plainTextToken;
-        if($validation) {
-            return response([
-                "user"=>(object) [
+        $response_user = (object) [
                     "id"=> 16008,
                     "name"=> "MD Shahnewaz Ibrahim Himu",
                     "phone"=> "01521480800"
-                ],
+        ];
+        // $token = $user->createToken(Request()->ip())->plainTextToken;
+    if($validation) {
+            return response([
+                "user"=>$response_user,
                 "token"=> "24|7Gg96hjDCKg6GCh2B5AJIByxD6ySxNQpzB60G58M",
                 "tokenHash"=>"MjR8N0dnOTZoakRDS2c2R0NoMkI1QUpJQnl4RDZ5U3hOUXB6QjYwRzU4TQ==",
                 "access"=> [],
@@ -172,6 +172,19 @@ class AuthController extends Controller
             "user_id" => $user->id,
             "message" => "Login successful",
         ], 201);
+    }
+
+    public function forgot_password(Request $request)
+    {
+        // return $request;
+        $code = rand(1111, 9999);
+        // Otp::updateOrCreate(
+        //         ['email' => $request->email],
+        //         ['code'  => $code,]
+        //     );
+        return response([
+            "code" => $code,
+        ], 200);
     }
 
     public function phone_verification(Request $request)

@@ -28,6 +28,8 @@ Route::post('join', [AuthController::class, 'join']);
 Route::post('confirm', [AuthController::class, 'confirm']);
 
 Route::post('login', [AuthController::class, 'login']);
+
+Route::post('forgot-password', [AuthController::class, 'forgot_password']);
 // Route::post('logout',  [AuthController::class, 'logout']);
 
 Route::post('register', [AuthController::class, 'register'])
